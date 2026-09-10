@@ -379,6 +379,7 @@
         }
 
         .mission-title {
+            cursor: pointer;
             font-size: 28px;
             color: #4A90E2;
             flex: 1;
@@ -1120,7 +1121,7 @@
                 "drop": "↓ Сюди ↓",
                 "collected": "Зібрано",
                 "well-done": "Молодець!",
-                "thank": "Дякую, Золата",
+                "thank": "Дякую, Злата",
                 "again": "🔄 Спробувати знову",
                 "next-mission": "📋 Наступна місія",
                 "play": "Грати",
@@ -1759,6 +1760,37 @@
         const tr = key => TRANSLATIONS[app.lang][key];
         const itemName = item => app.lang === 'uk' ? item.nameUA : item.nameEN;
 
+        // ===== ОЗВУЧКА НА ПОЧАТКУ МІСІЇ: «Злата збирається ... Що нам для цього треба?» =====
+        const GO_PHRASES = {
+            1:  ['на пляж', 'to the beach'],
+            2:  ['до школи', 'to school'],
+            3:  ['в зимовий парк', 'to the winter park'],
+            4:  ['в картинну галерею', 'to the art gallery'],
+            5:  ['на день народження', 'to a birthday party'],
+            6:  ['в лісовий похід', 'on a forest hike'],
+            7:  ['в басейн', 'to the swimming pool'],
+            8:  ['на космодром', 'to the cosmodrome'],
+            9:  ['до бабусі в село', "to Grandma's village"],
+            10: ['на футбольний матч', 'to a football match'],
+            11: ['на риболовлю', 'fishing'],
+            12: ['в бібліотеку', 'to the library'],
+            13: ['до лікарні', 'to the hospital'],
+            14: ['в аеропорт', 'to the airport'],
+            15: ['в майстерню', 'to the workshop'],
+            16: ['в скаутський табір', 'to scout camp'],
+            17: ['на пікнік', 'on a picnic'],
+            18: ['в кінотеатр', 'to the cinema'],
+            19: ['на лижні гірки', 'to the ski slopes'],
+            20: ['в спортзал', 'to the gym'],
+            21: ['на карнавал масок', 'to a costume party']
+        };
+
+        function missionPhrase(mission, lang) {
+            const go = GO_PHRASES[mission.id];
+            if (lang === 'en') return `Zlata is going ${go ? go[1] : mission.nameEN}. What do we need?`;
+            return `Злата збирається ${go ? go[0] : mission.nameUA}. Що нам для цього треба?`;
+        }
+
         // ===== ГОЛОВНИЙ КЛАС ГРИ =====
         class Game {
             constructor() {
@@ -1770,6 +1802,13 @@
                 this.drag = null;
                 this.finished = false;
                 this.restartTimeout = null;
+                this.announceTimeout = null;
+            }
+
+            // Озвучити завдання місії (також по дотику на назву місії)
+            announce() {
+                if (!this.currentMission || app.currentScreen !== 'game') return;
+                speakText(missionPhrase(this.currentMission, app.lang), app.lang);
             }
 
             get backpack() {
@@ -1794,13 +1833,17 @@
                 this.updateTimer();
                 app.showScreen('game');
                 this.startTimer();
+
+                clearTimeout(this.announceTimeout);
+                this.announceTimeout = setTimeout(() => this.announce(), 450);
             }
 
             updateTitle() {
                 if (!this.currentMission) return;
                 const m = this.currentMission;
-                document.getElementById('missionTitle').textContent =
-                    `${m.emoji} ${app.lang === 'uk' ? m.nameUA : m.nameEN}`;
+                const title = document.getElementById('missionTitle');
+                title.textContent = `${m.emoji} ${app.lang === 'uk' ? m.nameUA : m.nameEN} 🔊`;
+                title.title = missionPhrase(m, app.lang);
             }
 
             renderItems() {
@@ -2097,6 +2140,8 @@
             }
 
             leave() {
+                clearTimeout(this.announceTimeout);
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
                 this.stopTimer();
                 this.cancelDrag();
                 clearTimeout(this.restartTimeout);
@@ -2135,6 +2180,10 @@
             },
 
             init() {
+                document.getElementById('missionTitle').addEventListener('click', () => {
+                    Sound.sfx('tap');
+                    this.game.announce();
+                });
                 this.setLanguage(this.lang);
                 this.setupSplash();
             },
