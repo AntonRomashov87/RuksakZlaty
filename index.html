@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>🎒 Рюкзачок Злати</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🎒</text></svg>">
-    <!-- Заставка лежить поруч із цим файлом -->
+    <!-- Заставка (zastavka.jpg) і малюнок Злати (zlata.svg) лежать поруч із цим файлом -->
     <link rel="preload" as="image" href="zastavka.jpg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -537,6 +537,26 @@
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
         }
+
+        /* ===== ЗЛАТА (малюнок zlata.svg лежить поруч із цим файлом) =====
+           Розмір у em — тому всі існуючі font-size для .zlata-img /
+           .celebration-img (телефон, планшет, альбомна) працюють як раніше. */
+        .zlata-pic {
+            display: block;
+            width: 1.35em;
+            height: 1.35em;
+            margin: 0 auto;
+            filter: drop-shadow(0 0.04em 0.05em rgba(90, 50, 30, 0.22));
+            user-select: none;
+            -webkit-user-select: none;
+            pointer-events: none;
+        }
+
+        .celebration-img .zlata-pic { width: 1.6em; height: 1.6em; }
+
+        /* Якщо zlata.svg не знайдено — показуємо звичайне емодзі 👧 */
+        .no-pic .zlata-pic { display: none; }
+        .no-pic::before { content: '👧'; }
 
         .backpack {
             width: 160px;
@@ -1080,7 +1100,7 @@
                     <div class="items-zone" id="itemsZone"></div>
 
                     <div class="backpack-zone">
-                        <div class="zlata-img">👧</div>
+                        <div class="zlata-img"><img class="zlata-pic" src="zlata.svg" alt="" draggable="false" decoding="async" onerror="this.parentNode.classList.add('no-pic')"></div>
                         <div class="backpack" id="backpack">
                             <div class="drop-text"><span class="text-drop"></span></div>
                         </div>
@@ -1097,7 +1117,7 @@
         <!-- ЗАВЕРШЕННЯ -->
         <div id="completion" class="screen">
             <div class="completion">
-                <div class="celebration-img">👧</div>
+                <div class="celebration-img"><img class="zlata-pic" src="zlata.svg" alt="" draggable="false" decoding="async" onerror="this.parentNode.classList.add('no-pic')"></div>
                 <div class="celebration-emoji">🎉</div>
                 <h2 class="completion-msg"><span class="text-well-done"></span></h2>
                 <p class="thank-msg"><span class="text-thank"></span> 💚</p>
@@ -1121,7 +1141,7 @@
                 "drop": "↓ Сюди ↓",
                 "collected": "Зібрано",
                 "well-done": "Молодець!",
-                "thank": "Дякую, Злата",
+                "thank": "Дякую, Золата",
                 "again": "🔄 Спробувати знову",
                 "next-mission": "📋 Наступна місія",
                 "play": "Грати",
