@@ -2,9 +2,18 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#B9A3E6">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>🎒 Рюкзачок Злати</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🎒</text></svg>">
+    <!-- Заставка лежить поруч із цим файлом -->
+    <link rel="preload" as="image" href="zastavka.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,23 +21,147 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Arial', 'Comic Sans MS', sans-serif;
-            background: linear-gradient(135deg, #E8F4F8 0%, #F5F5DC 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
+        html {
+            -webkit-text-size-adjust: 100%;
         }
 
-        .lang-switcher {
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            z-index: 500;
+        body {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', ui-rounded, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #E8F4F8 0%, #F5F5DC 100%);
+            min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 10px;
+            color: #2C3E50;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
+        }
+
+        button {
+            font-family: inherit;
+            touch-action: manipulation;
+        }
+
+        button:focus-visible,
+        .room-card:focus-visible {
+            outline: 4px solid #9B7BF2;
+            outline-offset: 3px;
+        }
+
+        /* ===== ЗАСТАВКА ===== */
+        .splash {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #CDBDEB;
+            overflow: hidden;
+            transition: opacity 0.6s ease, visibility 0.6s;
+        }
+
+        .splash.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* Розмита копія картинки заповнює поля по краях */
+        .splash-bg {
+            position: absolute;
+            inset: -60px;
+            background: url('zastavka.jpg') center / cover no-repeat;
+            filter: blur(30px) saturate(1.15);
+            opacity: 0.85;
+        }
+
+        .splash-img {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            filter: drop-shadow(0 0 40px rgba(70, 30, 110, 0.35));
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .splash-fallback {
+            display: none;
+            position: relative;
+            text-align: center;
+            font-size: clamp(40px, 9vw, 72px);
+            font-weight: 900;
+            color: #7B4FD6;
+            text-shadow: 0 4px 0 #fff, 0 8px 24px rgba(123, 79, 214, 0.35);
+            padding: 0 20px 120px;
+            line-height: 1.1;
+        }
+
+        .splash.no-img .splash-img,
+        .splash.no-img .splash-bg { display: none; }
+        .splash.no-img { background: linear-gradient(160deg, #FBE3F2 0%, #D9CCF5 60%, #BFE3F5 100%); }
+        .splash.no-img .splash-fallback { display: block; }
+
+        .splash-play {
+            position: absolute;
+            left: 50%;
+            bottom: max(5%, calc(env(safe-area-inset-bottom) + 18px));
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 46px 16px 38px;
+            font-size: 28px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #FF93CF 0%, #B784F0 55%, #8F72EE 100%);
+            border: 4px solid #fff;
+            border-radius: 999px;
+            box-shadow: 0 10px 30px rgba(110, 60, 170, 0.45), inset 0 -4px 0 rgba(90, 40, 150, 0.25);
+            cursor: pointer;
+            animation: breathe 2.4s ease-in-out infinite;
+            white-space: nowrap;
+        }
+
+        .splash-play .play-icon {
+            display: grid;
+            place-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #fff;
+            color: #9B6FE8;
+            font-size: 18px;
+            padding-left: 3px;
+        }
+
+        .splash-play:active {
+            animation: none;
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.06); }
+        }
+
+        /* ===== ВЕРХНЯ ПАНЕЛЬ ===== */
+        .topbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
             gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        body[data-screen="game"] .topbar {
+            display: none;
         }
 
         .lang-btn {
@@ -37,8 +170,9 @@
             border: 2px solid #4A90E2;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 800;
             font-size: 14px;
+            color: #2C3E50;
             transition: all 0.3s;
         }
 
@@ -47,9 +181,25 @@
             color: white;
         }
 
-        .lang-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        .music-btn {
+            width: 44px;
+            height: 44px;
+            flex: 0 0 44px;
+            border-radius: 50%;
+            border: 2px solid #9B7BF2;
+            background: #F3EDFF;
+            font-size: 20px;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            transition: all 0.3s;
+        }
+
+        .music-btn.off {
+            border-color: #B8C2CC;
+            background: #fff;
+            filter: grayscale(1);
+            opacity: 0.7;
         }
 
         .container {
@@ -58,10 +208,11 @@
             background: white;
             border-radius: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            padding: 40px;
+            padding: 20px 40px 40px;
             position: relative;
             overflow: hidden;
-            min-height: 100vh;
+            min-height: calc(100vh - 20px);
+            min-height: calc(100dvh - 20px);
         }
 
         .screen {
@@ -73,99 +224,9 @@
             animation: slideIn 0.5s ease-out;
         }
 
-        /* ===== SPLASH SCREEN ===== */
-        .splash {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15)), url('splash.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            animation: splashFade 0.5s ease-out forwards;
-        }
-
-        .splash.hide {
-            animation: splashFadeOut 0.5s ease-out forwards;
-            pointer-events: none;
-        }
-
-        @keyframes splashFade {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes splashFadeOut {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0;
-            }
-        }
-
-        .splash-overlay {
-            text-align: center;
-            animation: splashPop 0.8s ease-out;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 60px 80px;
-            border-radius: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .splash-emoji {
-            font-size: 100px;
-            animation: float 2s ease-in-out infinite;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
-        }
-
-        .splash-title {
-            font-size: 52px;
-            background: linear-gradient(135deg, #4A90E2, #9B59B6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 900;
-            margin-top: 20px;
-            letter-spacing: 2px;
-        }
-
-        @keyframes splashPop {
-            0% {
-                transform: scale(0.5);
-                opacity: 0;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* ===== МЕНЮ КІМНАТ ===== */
@@ -176,17 +237,18 @@
         .title {
             font-size: 56px;
             color: #4A90E2;
-            margin: 30px 0;
+            margin: 20px 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
             font-weight: 900;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
+            line-height: 1.1;
         }
 
         .subtitle {
             font-size: 24px;
-            color: #FFD700;
+            color: #E0A800;
             margin-bottom: 40px;
-            font-weight: bold;
+            font-weight: 800;
         }
 
         .rooms-grid {
@@ -204,17 +266,16 @@
             border-radius: 20px;
             cursor: pointer;
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 800;
             transition: all 0.3s;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            color: #2C3E50;
+            font-family: inherit;
+            width: 100%;
         }
 
-        .room-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-            background: linear-gradient(135deg, #4A90E2, #2E5C8A);
-            color: white;
-            border-color: #2E5C8A;
+        .room-card:active {
+            transform: scale(0.97);
         }
 
         .room-emoji {
@@ -224,17 +285,19 @@
         }
 
         .room-name {
+            display: block;
             font-size: 20px;
             margin-bottom: 10px;
         }
 
         .room-desc {
+            display: block;
             font-size: 14px;
             opacity: 0.8;
-            font-weight: normal;
+            font-weight: 700;
         }
 
-        /* ===== МЕНЮ МІСІЙ =====*/
+        /* ===== МЕНЮ МІСІЙ ===== */
         .mission-menu {
             text-align: center;
         }
@@ -256,25 +319,22 @@
         }
 
         .mission-btn {
-            padding: 20px 25px;
+            padding: 20px 20px;
             border: 4px solid #FFD700;
             background: white;
             border-radius: 15px;
             cursor: pointer;
             font-size: 15px;
-            font-weight: bold;
+            font-weight: 800;
+            color: #2C3E50;
             transition: all 0.3s;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
             width: 100%;
-            max-width: 130px;
+            max-width: 140px;
         }
 
-        .mission-btn:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-            background: linear-gradient(135deg, #FFD700, #F39C12);
-            color: white;
-            border-color: #F39C12;
+        .mission-btn:active {
+            transform: scale(0.95);
         }
 
         .mission-emoji {
@@ -285,19 +345,21 @@
 
         .back-btn-top {
             margin-bottom: 20px;
+            text-align: left;
         }
 
-        /* ===== ГРАВАЙ ===== */
+        /* ===== ГРА ===== */
         .game-screen {
             text-align: center;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
             border-bottom: 4px solid #4A90E2;
             gap: 15px;
         }
@@ -309,35 +371,36 @@
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 800;
             font-size: 16px;
             transition: all 0.3s;
             min-width: 100px;
-        }
-
-        .back-btn:hover {
-            background: #2E5C8A;
-            transform: translateY(-2px);
+            white-space: nowrap;
         }
 
         .mission-title {
             font-size: 28px;
             color: #4A90E2;
             flex: 1;
+            min-width: 0;
             margin: 0;
             font-weight: 900;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .timer {
             font-size: 24px;
-            font-weight: bold;
-            padding: 12px 20px;
+            font-weight: 900;
+            padding: 10px 18px;
             background: #FFD700;
             border-radius: 10px;
             color: #2C3E50;
             min-width: 100px;
             border: 3px solid #DAA520;
+            font-variant-numeric: tabular-nums;
         }
 
         .timer.warning {
@@ -355,35 +418,36 @@
             display: grid;
             grid-template-columns: 1fr 250px;
             gap: 25px;
-            margin: 25px 0;
+            margin: 10px 0;
             min-height: 420px;
         }
 
         .items-zone {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            justify-items: center;
+            align-content: start;
             gap: 16px;
             padding: 20px;
             background: rgba(232, 244, 248, 0.5);
             border-radius: 15px;
-            align-content: flex-start;
             overflow-y: auto;
-            max-height: 420px;
+            max-height: 470px;
             border: 3px dashed #4A90E2;
-            justify-content: center;
             -webkit-user-select: none;
+            user-select: none;
             -webkit-touch-callout: none;
         }
 
         .item {
             width: 110px;
             height: 140px;
-            padding: 12px;
+            padding: 12px 6px;
             background: white;
             border: 3px solid #FFD700;
             border-radius: 12px;
             cursor: grab;
-            transition: all 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, opacity 0.2s;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             display: flex;
             flex-direction: column;
@@ -397,39 +461,59 @@
             -webkit-touch-callout: none;
         }
 
-        .item:active {
-            cursor: grabbing;
-        }
-
-        .item:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
-            border-color: #4A90E2;
-        }
-
-        .item.dragging {
-            opacity: 0.6;
-            transform: rotate(5deg) scale(0.95);
-            border-color: #4A90E2;
-            cursor: grabbing;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            z-index: 100;
+        .item.placeholder {
+            opacity: 0.25;
+            border-style: dashed;
+            box-shadow: none;
         }
 
         .item.collected {
-            display: none;
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        .item.shake {
+            animation: shake 0.4s;
+        }
+
+        .item.tapped {
+            animation: tapBounce 0.35s;
+        }
+
+        @keyframes tapBounce {
+            0%, 100% { transform: scale(1); }
+            40% { transform: scale(1.12); }
+        }
+
+        /* Копія предмета, що їде за пальцем */
+        .item.ghost {
+            position: fixed;
+            left: 0;
+            top: 0;
+            margin: 0;
+            z-index: 2000;
+            pointer-events: none;
+            transition: none;
+            border-color: #4A90E2;
+            box-shadow: 0 16px 30px rgba(0, 0, 0, 0.3);
+            cursor: grabbing;
+            will-change: transform;
         }
 
         .item-emoji {
             font-size: 38px;
             margin-bottom: 8px;
+            line-height: 1.1;
+            pointer-events: none;
         }
 
         .item-name {
             font-size: 13px;
             color: #2C3E50;
             font-weight: 900;
-            line-height: 1.2;
+            line-height: 1.15;
+            overflow-wrap: anywhere;
+            pointer-events: none;
         }
 
         /* Рюкзак */
@@ -443,6 +527,7 @@
 
         .zlata-img {
             font-size: 120px;
+            line-height: 1;
             text-align: center;
             animation: float 2s ease-in-out infinite;
         }
@@ -460,12 +545,12 @@
             border-radius: 15% 15% 5% 5%;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
             position: relative;
-            transition: all 0.3s;
-            cursor: pointer;
+            transition: transform 0.25s, box-shadow 0.25s;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 10;
+            flex: 0 0 auto;
         }
 
         .backpack::before {
@@ -483,27 +568,36 @@
 
         .backpack.drag-over {
             transform: scale(1.12);
-            box-shadow: 0 0 30px #FFD700;
-            animation: pulse 0.3s;
-            z-index: 50;
+            box-shadow: 0 0 34px #FFD700;
+        }
+
+        .backpack.gulp {
+            animation: gulp 0.4s ease-out;
+        }
+
+        @keyframes gulp {
+            0% { transform: scale(1); }
+            35% { transform: scale(1.15, 0.9); }
+            70% { transform: scale(0.95, 1.06); }
+            100% { transform: scale(1); }
         }
 
         .drop-text {
             font-size: 14px;
-            color: #DAA520;
-            font-weight: bold;
+            color: #7A5A00;
+            font-weight: 900;
         }
 
         /* Прогрес */
         .progress {
-            margin-top: 25px;
+            margin-top: 20px;
         }
 
         .progress-label {
             font-size: 18px;
             color: #2C3E50;
-            margin-bottom: 15px;
-            font-weight: bold;
+            margin-bottom: 12px;
+            font-weight: 800;
         }
 
         .progress-bar {
@@ -523,7 +617,6 @@
             justify-content: center;
             font-size: 24px;
             transition: all 0.3s;
-            font-weight: bold;
         }
 
         .slot.filled {
@@ -533,27 +626,20 @@
         }
 
         @keyframes fillSlot {
-            0% {
-                transform: scale(0);
-                background: white;
-            }
-            50% {
-                transform: scale(1.25);
-            }
-            100% {
-                transform: scale(1.12);
-                background: #FFD700;
-            }
+            0% { transform: scale(0); background: white; }
+            50% { transform: scale(1.25); }
+            100% { transform: scale(1.12); background: #FFD700; }
         }
 
         /* ===== ЗАВЕРШЕННЯ ===== */
         .completion {
             text-align: center;
-            padding: 50px;
+            padding: 30px 20px 40px;
         }
 
         .celebration-img {
             font-size: 120px;
+            line-height: 1;
             margin: 20px 0;
             animation: bounce 1s infinite;
         }
@@ -566,43 +652,37 @@
         .completion-msg {
             font-size: 36px;
             color: #4A90E2;
-            margin: 25px 0;
+            margin: 20px 0;
             font-weight: 900;
-            letter-spacing: 1px;
         }
 
         .celebration-emoji {
             font-size: 70px;
-            margin: 20px 0;
+            margin: 10px 0;
         }
 
         .thank-msg {
             font-size: 26px;
             color: #4A90E2;
-            font-weight: bold;
-            margin: 25px 0;
+            font-weight: 800;
+            margin: 20px 0;
         }
 
         .stars {
             font-size: 50px;
-            margin: 30px 0;
+            margin: 24px 0;
             letter-spacing: 15px;
+            min-height: 60px;
         }
 
         .star {
             display: inline-block;
-            animation: starPop 0.6s ease-out;
+            animation: starPop 0.6s ease-out both;
         }
 
         @keyframes starPop {
-            0% {
-                transform: scale(0) rotate(-180deg);
-                opacity: 0;
-            }
-            100% {
-                transform: scale(1) rotate(0deg);
-                opacity: 1;
-            }
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
 
         .button-group {
@@ -617,9 +697,8 @@
             padding: 16px 32px;
             border: none;
             border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            font-family: 'Arial', sans-serif;
+            font-size: 17px;
+            font-weight: 900;
             cursor: pointer;
             transition: all 0.3s;
             min-width: 150px;
@@ -627,14 +706,10 @@
 
         .btn-primary {
             background: linear-gradient(135deg, #FFD700, #F39C12);
-            color: white;
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(150, 90, 0, 0.5);
             box-shadow: 0 6px 15px rgba(255, 215, 0, 0.3);
             border: 2px solid #DAA520;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
         }
 
         .btn-secondary {
@@ -643,48 +718,42 @@
             border: 2px solid #2E5C8A;
         }
 
-        .btn-secondary:hover {
-            background: #2E5C8A;
-            transform: translateY(-3px);
-        }
-
         /* Повідомлення */
         .feedback {
             position: fixed;
             top: 80px;
             right: 20px;
             padding: 18px 25px;
-            background: white;
             border-radius: 12px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
             animation: slideInRight 0.3s ease-out;
-            z-index: 1000;
-            font-weight: bold;
-            font-size: 16px;
+            z-index: 2500;
+            font-weight: 900;
+            font-size: 17px;
+            color: white;
+            pointer-events: none;
         }
 
         @keyframes slideInRight {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
-        .feedback.success {
-            background: #7ED321;
-            color: white;
-            border: 3px solid #7ED321;
+        /* Під час гри підказка з'являється над рюкзаком — не закриває таймер */
+        .feedback.anchored {
+            right: auto;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            animation: popUp 0.3s ease-out;
         }
 
-        .feedback.error {
-            background: #E74C3C;
-            color: white;
-            border: 3px solid #E74C3C;
+        @keyframes popUp {
+            from { transform: translate(-50%, 16px) scale(0.8); opacity: 0; }
+            to { transform: translate(-50%, 0) scale(1); opacity: 1; }
         }
+
+        .feedback.success { background: #5DB514; border: 3px solid #7ED321; }
+        .feedback.error { background: #E74C3C; border: 3px solid #F07466; }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -692,73 +761,288 @@
             20%, 40%, 60%, 80% { transform: translateX(8px); }
         }
 
-        @media (max-width: 768px) {
-            .game-content {
-                grid-template-columns: 1fr;
+        /* Ефекти наведення — лише там, де є миша (щоб не «залипали» на телефоні) */
+        @media (hover: hover) and (pointer: fine) {
+            .lang-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+            .room-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+                background: linear-gradient(135deg, #4A90E2, #2E5C8A);
+                color: white;
+                border-color: #2E5C8A;
             }
+            .mission-btn:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+                background: linear-gradient(135deg, #FFD700, #F39C12);
+                color: white;
+                border-color: #F39C12;
+            }
+            .back-btn:hover { background: #2E5C8A; transform: translateY(-2px); }
+            .item:not(.ghost):not(.placeholder):hover {
+                transform: translateY(-6px);
+                box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+                border-color: #4A90E2;
+            }
+            .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4); }
+            .btn-secondary:hover { background: #2E5C8A; transform: translateY(-3px); }
+            .music-btn:hover { transform: scale(1.08); }
+        }
+
+        /* ===== ПЛАНШЕТ ===== */
+        @media (max-width: 1000px) and (min-width: 761px) {
+            .container { padding: 20px 24px 30px; }
+            .game-content { grid-template-columns: 1fr 210px; }
+        }
+
+        /* ===== СМАРТФОН (портрет) ===== */
+        @media (max-width: 760px) {
+            body { padding: 0; }
 
             .container {
-                padding: 20px;
+                border-radius: 0;
+                box-shadow: none;
+                padding:
+                    calc(10px + env(safe-area-inset-top))
+                    calc(12px + env(safe-area-inset-right))
+                    calc(12px + env(safe-area-inset-bottom))
+                    calc(12px + env(safe-area-inset-left));
+                min-height: 100vh;
+                min-height: 100dvh;
             }
 
-            .title {
-                font-size: 40px;
-            }
+            .lang-btn { padding: 6px 10px; font-size: 18px; line-height: 1; height: 40px; }
+            .lang-btn .lang-label { display: none; }
+            .music-btn { width: 40px; height: 40px; flex-basis: 40px; font-size: 18px; }
 
+            .title { font-size: 36px; margin: 8px 0 6px; letter-spacing: 0; }
+            .subtitle { font-size: 18px; margin-bottom: 16px; }
+
+            .rooms-grid { grid-template-columns: 1fr; gap: 14px; margin: 16px auto; }
+            .room-card {
+                display: grid;
+                grid-template-columns: auto 1fr;
+                align-items: center;
+                column-gap: 16px;
+                text-align: left;
+                padding: 16px 20px;
+            }
+            .room-emoji { grid-row: span 2; font-size: 44px; margin: 0; }
+            .room-name { margin-bottom: 2px; }
+
+            .back-btn-top { margin-bottom: 8px; }
+            .room-title { font-size: 28px; margin: 8px 0; }
             .mission-grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
                 gap: 12px;
+                margin: 16px auto;
+            }
+            .mission-btn { max-width: none; padding: 14px 6px; font-size: 14px; }
+            .mission-emoji { font-size: 36px; }
+
+            /* Гра займає рівно екран — без прокрутки сторінки під час перетягування */
+            #game.active .game-screen {
+                height: calc(100vh - 22px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+                height: calc(100dvh - 22px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
             }
 
-            .mission-btn {
-                max-width: 100%;
-            }
+            .header { gap: 8px; margin-bottom: 10px; padding-bottom: 8px; border-bottom-width: 3px; }
+            .back-btn { min-width: 0; padding: 10px 12px; font-size: 15px; }
+            .mission-title { font-size: 20px; }
+            .timer { min-width: 0; padding: 7px 10px; font-size: 18px; border-width: 2px; }
 
-            .zlata-img {
-                font-size: 80px;
-            }
-
-            .backpack {
-                width: 120px;
-                height: 100px;
-            }
-
-            .item {
-                width: 90px;
-                height: 110px;
-            }
-
-            .header {
-                flex-wrap: wrap;
+            .game-content {
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                min-height: 0;
                 gap: 10px;
-            }
-
-            .mission-title {
-                flex-basis: 100%;
                 margin: 0;
-                font-size: 24px;
             }
 
-            .rooms-grid {
-                grid-template-columns: 1fr;
+            .items-zone {
+                flex: 1;
+                min-height: 0;
+                max-height: none;
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                grid-auto-rows: minmax(96px, 1fr);
+                align-content: stretch;
+                gap: 8px;
+                padding: 8px;
+                border-width: 2px;
+            }
+
+            .item { width: 100%; height: auto; max-height: 170px; padding: 8px 3px; border-width: 2px; align-self: stretch; }
+            .item-emoji { font-size: clamp(34px, 10vw, 46px); margin-bottom: 4px; }
+            .item-name { font-size: 13px; }
+
+            .backpack-zone { flex-direction: row; gap: 18px; flex: 0 0 auto; padding-top: 10px; }
+            .zlata-img { font-size: 60px; }
+            .backpack { width: 130px; height: 96px; }
+            .backpack::before { width: 70px; height: 14px; top: -8px; }
+
+            .progress { margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+            .progress-label { margin: 0; font-size: 15px; white-space: nowrap; }
+            .progress-bar { gap: 6px; }
+            .slot { width: 30px; height: 30px; border-width: 2px; border-radius: 8px; }
+
+            .completion { padding: 10px 4px 20px; }
+            .celebration-img { font-size: 84px; margin: 16px 0 8px; }
+            .celebration-emoji { font-size: 52px; margin: 4px 0; }
+            .completion-msg { font-size: 30px; margin: 12px 0; }
+            .thank-msg { font-size: 21px; margin: 12px 0; }
+            .stars { font-size: 42px; margin: 16px 0; letter-spacing: 10px; }
+            .button-group { flex-direction: column; align-items: stretch; margin-top: 20px; }
+            .btn { width: 100%; padding: 16px; }
+
+            .feedback {
+                top: calc(10px + env(safe-area-inset-top));
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 12px 20px;
+                font-size: 16px;
+                white-space: nowrap;
+                animation: dropIn 0.3s ease-out;
+            }
+
+            .splash-play { font-size: 24px; padding: 14px 38px 14px 30px; }
+        }
+
+        @keyframes dropIn {
+            from { transform: translate(-50%, -30px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        /* Дуже вузькі телефони */
+        @media (max-width: 360px) {
+            .items-zone { grid-template-columns: repeat(3, 1fr); }
+            .mission-grid { grid-template-columns: repeat(2, 1fr); }
+            .zlata-img { font-size: 48px; }
+            .backpack { width: 112px; height: 86px; }
+            .back-btn .text-back { font-size: 0; }
+            .back-btn .text-back::before { content: '←'; font-size: 18px; }
+        }
+
+        /* ===== СМАРТФОН (альбомна орієнтація) ===== */
+        @media (max-height: 520px) and (orientation: landscape) {
+            body { padding: 0; }
+
+            .container {
+                border-radius: 0;
+                box-shadow: none;
+                padding:
+                    8px
+                    calc(14px + env(safe-area-inset-right))
+                    8px
+                    calc(14px + env(safe-area-inset-left));
+                min-height: 100vh;
+                min-height: 100dvh;
+            }
+
+            .lang-btn { padding: 4px 10px; font-size: 16px; height: 36px; }
+            .lang-btn .lang-label { display: none; }
+            .music-btn { width: 36px; height: 36px; flex-basis: 36px; font-size: 16px; }
+
+            .title { font-size: 30px; margin: 0 0 4px; }
+            .subtitle { font-size: 16px; margin-bottom: 10px; }
+            .rooms-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 10px auto; }
+            .room-card { padding: 14px 10px; }
+            .room-emoji { font-size: 36px; margin-bottom: 6px; }
+
+            .room-title { font-size: 24px; margin: 4px 0; }
+            .back-btn-top { margin-bottom: 4px; }
+            .mission-grid {
+                grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+                gap: 10px;
+                margin: 10px auto;
+            }
+            .mission-btn { max-width: none; padding: 10px 6px; font-size: 13px; }
+            .mission-emoji { font-size: 30px; margin-bottom: 4px; }
+
+            #game.active .game-screen {
+                height: calc(100vh - 16px);
+                height: calc(100dvh - 16px);
+            }
+
+            .header { gap: 10px; margin-bottom: 6px; padding-bottom: 6px; border-bottom-width: 3px; }
+            .back-btn { min-width: 0; padding: 8px 12px; font-size: 14px; }
+            .mission-title { font-size: 20px; }
+            .timer { min-width: 0; padding: 5px 10px; font-size: 17px; border-width: 2px; }
+
+            .game-content {
+                display: grid;
+                grid-template-columns: 1fr 170px;
+                flex: 1;
+                min-height: 0;
+                gap: 10px;
+                margin: 0;
+            }
+
+            .items-zone {
+                min-height: 0;
+                max-height: none;
+                grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+                grid-auto-rows: minmax(84px, 1fr);
+                align-content: stretch;
+                gap: 8px;
+                padding: 8px;
+                border-width: 2px;
+            }
+
+            .item { width: 100%; height: auto; max-height: 150px; padding: 6px 3px; border-width: 2px; align-self: stretch; }
+            .item-emoji { font-size: 32px; margin-bottom: 3px; }
+            .item-name { font-size: 12px; }
+
+            .backpack-zone { gap: 6px; }
+            .zlata-img { font-size: 48px; }
+            .backpack { width: 130px; height: 100px; }
+
+            .progress { margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+            .progress-label { margin: 0; font-size: 14px; }
+            .progress-bar { gap: 6px; }
+            .slot { width: 26px; height: 26px; border-width: 2px; border-radius: 7px; }
+
+            .completion { padding: 0 10px 10px; }
+            .celebration-img { display: none; }
+            .celebration-emoji { font-size: 44px; margin: 0; }
+            .completion-msg { font-size: 28px; margin: 6px 0; }
+            .thank-msg { font-size: 20px; margin: 6px 0; }
+            .stars { font-size: 36px; margin: 8px 0; min-height: 44px; }
+            .button-group { margin-top: 10px; }
+            .btn { padding: 12px 24px; }
+
+            .splash-play { font-size: 22px; padding: 10px 32px 10px 24px; bottom: 16px; }
+            .splash-play .play-icon { width: 32px; height: 32px; font-size: 14px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }
         }
     </style>
 </head>
-<body>
-    <!-- МОВНИЙ ПЕРЕКЛЮЧУВАЧ -->
-    <div class="lang-switcher">
-        <button class="lang-btn active" onclick="app.setLanguage('uk')">🇺🇦 Українська</button>
-        <button class="lang-btn" onclick="app.setLanguage('en')">🇬🇧 English</button>
+<body data-screen="splash">
+    <!-- ЗАСТАВКА (картинка zastavka.jpg лежить поруч із цим файлом) -->
+    <div class="splash" id="splash">
+        <div class="splash-bg"></div>
+        <img class="splash-img" id="splashImg" src="zastavka.jpg" alt="Рюкзачок Злати" draggable="false">
+        <div class="splash-fallback">🎒<br>Рюкзачок<br>Злати</div>
+        <button class="splash-play" id="playBtn" type="button">
+            <span class="play-icon" aria-hidden="true">▶</span>
+            <span class="text-play">Грати</span>
+        </button>
     </div>
 
     <div class="container">
-        <!-- SPLASH SCREEN -->
-        <div id="splash" class="splash active">
-            <div class="splash-overlay">
-                <div class="splash-emoji">🎒</div>
-                <div class="splash-title">Рюкзачок Злати</div>
-            </div>
+        <!-- ВЕРХНЯ ПАНЕЛЬ: мова + музика -->
+        <div class="topbar">
+            <button class="lang-btn active" data-lang="uk" type="button" onclick="app.setLanguage('uk')">🇺🇦<span class="lang-label"> Українська</span></button>
+            <button class="lang-btn" data-lang="en" type="button" onclick="app.setLanguage('en')">🇬🇧<span class="lang-label"> English</span></button>
+            <button class="music-btn" type="button" onclick="Sound.toggleMusic()" aria-label="Музика">🎵</button>
         </div>
 
         <!-- МЕНЮ КІМНАТ -->
@@ -774,20 +1058,21 @@
         <div id="missions" class="screen">
             <div class="mission-menu">
                 <div class="back-btn-top">
-                    <button class="back-btn" onclick="app.backToRooms()"><span class="text-back"></span></button>
+                    <button class="back-btn" type="button" onclick="app.backToRooms()"><span class="text-back"></span></button>
                 </div>
                 <h2 class="room-title" id="roomTitle"></h2>
                 <div class="mission-grid" id="missionGrid"></div>
             </div>
         </div>
 
-        <!-- ГРАВАЙ -->
+        <!-- ГРА -->
         <div id="game" class="screen">
             <div class="game-screen">
                 <div class="header">
-                    <button class="back-btn" onclick="app.backToMissions()"><span class="text-back"></span></button>
-                    <h2 class="mission-title" id="missionTitle">На пляж</h2>
+                    <button class="back-btn" type="button" onclick="app.backToMissions()"><span class="text-back"></span></button>
+                    <h2 class="mission-title" id="missionTitle"></h2>
                     <div class="timer" id="timer">2:00</div>
+                    <button class="music-btn" type="button" onclick="Sound.toggleMusic()" aria-label="Музика">🎵</button>
                 </div>
 
                 <div class="game-content">
@@ -817,14 +1102,51 @@
                 <p class="thank-msg"><span class="text-thank"></span> 💚</p>
                 <div class="stars" id="starsDisplay"></div>
                 <div class="button-group">
-                    <button class="btn btn-primary" onclick="app.playAgain()"><span class="text-again"></span></button>
-                    <button class="btn btn-secondary" onclick="app.backToMissions()"><span class="text-next-mission"></span></button>
+                    <button class="btn btn-primary" type="button" onclick="app.playAgain()"><span class="text-again"></span></button>
+                    <button class="btn btn-secondary" type="button" onclick="app.backToMissions()"><span class="text-next-mission"></span></button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+
+        // ===== ПЕРЕКЛАДИ =====
+        const TRANSLATIONS = {
+            uk: {
+                "menu-title": "Рюкзачок Злати",
+                "select-room": "Вибери кімнату для гри!",
+                "back": "← Назад",
+                "drop": "↓ Сюди ↓",
+                "collected": "Зібрано",
+                "well-done": "Молодець!",
+                "thank": "Дякую, Золата",
+                "again": "🔄 Спробувати знову",
+                "next-mission": "📋 Наступна місія",
+                "play": "Грати",
+                "correct": "Правильно!",
+                "wrong": "Не підходить!",
+                "timeup": "Час вийшов!",
+                "music": "Музика"
+            },
+            en: {
+                "menu-title": "Zlata's Backpack",
+                "select-room": "Choose a room to play!",
+                "back": "← Back",
+                "drop": "↓ Drop here ↓",
+                "collected": "Collected",
+                "well-done": "Well done!",
+                "thank": "Thank you, Zlata",
+                "again": "🔄 Try again",
+                "next-mission": "📋 Next mission",
+                "play": "Play",
+                "correct": "Correct!",
+                "wrong": "Doesn't fit!",
+                "timeup": "Time's up!",
+                "music": "Music"
+            }
+        };
+
         // ===== КІМНАТИ (РІВНІ СКЛАДНОСТІ) =====
         const ROOMS = [
             {
@@ -856,33 +1178,7 @@
             }
         ];
 
-        // ===== ПЕРЕВОДИ =====
-        const TRANSLATIONS = {
-            uk: {
-                "menu-title": "Рюкзачок Злати",
-                "select-room": "Вибери кімнату для гри!",
-                "back": "← Назад",
-                "drop": "↓ Сюди ↓",
-                "collected": "Зібрано",
-                "well-done": "Молодець!",
-                "thank": "Дякую, Золата",
-                "again": "🔄 Спробувати знову",
-                "next-mission": "📋 Наступна місія"
-            },
-            en: {
-                "menu-title": "Zlata's Backpack",
-                "select-room": "Choose a room to play!",
-                "back": "← Back",
-                "drop": "↓ Drop here ↓",
-                "collected": "Collected",
-                "well-done": "Well done!",
-                "thank": "Thank you, Zlata",
-                "again": "🔄 Try again",
-                "next-mission": "📋 Next mission"
-            }
-        };
-
-        // ===== ВСІ 15 МІСІЙ =====
+        // ===== ВСІ 21 МІСІЯ =====
         const MISSIONS = [
             {
                 id: 1,
@@ -1148,6 +1444,306 @@
             accessories: { nameUA: "прикраси", nameEN: "accessories", emoji: "💎" }
         };
 
+        // =====================================================================
+        // ===== ЗВУК: фонова музика + звукові ефекти =====
+        // Якщо поруч із файлом лежить muzyka.mp3 — грає він.
+        // Якщо ні — грає вбудована мелодія (Web Audio), файл лишається легким.
+        // =====================================================================
+        const SONG = {
+            // Акорди по тактах (такт = 8 восьмих). Масив = два акорди в такті.
+            chords: ['C', 'Am', 'F', 'G', 'C', 'Am', ['F', 'G'], 'C',
+                     'F', 'G', 'Em', 'Am', 'F', 'G', 'C', 'C'],
+            // Мелодія: [MIDI-нота або 0 = пауза, тривалість у восьмих]
+            melody: [
+                [[76, 2], [79, 2], [81, 1], [79, 1], [76, 2]],
+                [[72, 2], [76, 2], [74, 2], [72, 2]],
+                [[69, 2], [72, 2], [77, 2], [76, 1], [74, 1]],
+                [[74, 4], [67, 2], [0, 2]],
+                [[76, 2], [79, 2], [84, 2], [83, 1], [81, 1]],
+                [[81, 2], [79, 2], [76, 2], [72, 2]],
+                [[72, 2], [77, 2], [76, 2], [74, 2]],
+                [[72, 4], [0, 4]],
+                [[81, 2], [81, 1], [79, 1], [77, 2], [81, 2]],
+                [[79, 2], [74, 2], [71, 2], [74, 2]],
+                [[76, 2], [79, 2], [83, 2], [79, 2]],
+                [[81, 4], [76, 2], [0, 2]],
+                [[77, 2], [81, 2], [84, 2], [81, 2]],
+                [[83, 2], [81, 1], [79, 1], [74, 4]],
+                [[76, 2], [74, 1], [72, 1], [74, 2], [76, 2]],
+                [[72, 6], [0, 2]]
+            ]
+        };
+
+        const CHORDS = {
+            C:  { root: 48, tones: [60, 64, 67] },
+            Am: { root: 45, tones: [57, 60, 64] },
+            F:  { root: 53, tones: [57, 60, 65] },
+            G:  { root: 55, tones: [55, 59, 62] },
+            Em: { root: 52, tones: [55, 59, 64] }
+        };
+
+        // Розгортаємо мелодію в сітку восьмих
+        const MELODY_STEPS = [];
+        SONG.melody.forEach(bar => bar.forEach(([note, len]) => {
+            MELODY_STEPS.push(note ? { note, len } : null);
+            for (let i = 1; i < len; i++) MELODY_STEPS.push(null);
+        }));
+        const TOTAL_STEPS = SONG.chords.length * 8;
+
+        const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+
+        const Sound = {
+            ctx: null,
+            master: null,
+            musicBus: null,
+            duckBus: null,
+            sfxBus: null,
+            musicOn: localStorage.getItem('rz_music') !== 'off',
+            mode: null,          // 'file' | 'synth' | null
+            audioEl: null,
+            started: false,
+            schedulerId: null,
+            step: 0,
+            nextTime: 0,
+            tempo: 96,
+            musicLevel: 0.55,
+            fileVolume: 0.4,
+
+            unlock() {
+                if (!this.ctx) {
+                    const AC = window.AudioContext || window.webkitAudioContext;
+                    if (!AC) return;
+                    this.ctx = new AC();
+                    const c = this.ctx;
+
+                    this.master = c.createGain();
+                    this.master.gain.value = 0.85;
+                    this.master.connect(c.destination);
+
+                    // Музика: гучність → «приглушення» під час озвучки → легке відлуння
+                    this.musicBus = c.createGain();
+                    this.musicBus.gain.value = 0.0001;
+                    this.duckBus = c.createGain();
+                    this.duckBus.gain.value = 1;
+                    const soft = c.createBiquadFilter();
+                    soft.type = 'lowpass';
+                    soft.frequency.value = 4200;
+                    this.musicBus.connect(this.duckBus).connect(soft).connect(this.master);
+
+                    const delay = c.createDelay(1);
+                    delay.delayTime.value = 0.29;
+                    const fb = c.createGain();
+                    fb.gain.value = 0.22;
+                    const wet = c.createGain();
+                    wet.gain.value = 0.16;
+                    soft.connect(delay);
+                    delay.connect(fb).connect(delay);
+                    delay.connect(wet).connect(this.master);
+
+                    this.sfxBus = c.createGain();
+                    this.sfxBus.gain.value = 0.9;
+                    this.sfxBus.connect(this.master);
+                }
+                if (this.ctx.state !== 'running') this.ctx.resume().catch(() => {});
+            },
+
+            // --- один «голос» ---
+            voice(freq, t, { type = 'sine', gain = 0.2, attack = 0.006, decay = 0.5, dest, harmonic = 0 } = {}) {
+                const c = this.ctx;
+                const g = c.createGain();
+                g.gain.setValueAtTime(0.0001, t);
+                g.gain.exponentialRampToValueAtTime(gain, t + attack);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + attack + decay);
+                g.connect(dest || this.sfxBus);
+                const end = t + attack + decay + 0.05;
+
+                const o = c.createOscillator();
+                o.type = type;
+                o.frequency.setValueAtTime(freq, t);
+                o.connect(g);
+                o.start(t);
+                o.stop(end);
+
+                if (harmonic) {
+                    const o2 = c.createOscillator();
+                    o2.type = 'sine';
+                    o2.frequency.setValueAtTime(freq * 2, t);
+                    const g2 = c.createGain();
+                    g2.gain.value = harmonic;
+                    o2.connect(g2).connect(g);
+                    o2.start(t);
+                    o2.stop(end);
+                }
+            },
+
+            // --- музика ---
+            startMusic() {
+                if (!this.musicOn) return;
+                this.started = true;
+
+                if (this.mode === 'file') {
+                    this.audioEl.play().catch(() => {});
+                    return;
+                }
+                if (this.mode === 'synth') {
+                    this.startSynth();
+                    return;
+                }
+
+                // Перший запуск: пробуємо muzyka.mp3 поруч із файлом
+                const a = new Audio('muzyka.mp3');
+                a.loop = true;
+                a.volume = this.fileVolume;
+                this.audioEl = a;
+                a.play().then(() => {
+                    this.mode = 'file';
+                    if (!this.musicOn) a.pause();
+                }).catch(() => {
+                    this.mode = 'synth';
+                    this.audioEl = null;
+                    if (this.musicOn) this.startSynth();
+                });
+            },
+
+            stopMusic() {
+                if (this.mode === 'file' && this.audioEl) this.audioEl.pause();
+                if (this.schedulerId) {
+                    clearInterval(this.schedulerId);
+                    this.schedulerId = null;
+                    const t = this.ctx.currentTime;
+                    this.musicBus.gain.cancelScheduledValues(t);
+                    this.musicBus.gain.setTargetAtTime(0.0001, t, 0.15);
+                }
+            },
+
+            startSynth() {
+                this.unlock();
+                if (!this.ctx || this.schedulerId) return;
+                const t = this.ctx.currentTime;
+                this.musicBus.gain.cancelScheduledValues(t);
+                this.musicBus.gain.setValueAtTime(Math.max(this.musicBus.gain.value, 0.0001), t);
+                this.musicBus.gain.exponentialRampToValueAtTime(this.musicLevel, t + 1.5);
+                this.nextTime = t + 0.12;
+                this.schedulerId = setInterval(() => this.schedule(), 25);
+            },
+
+            schedule() {
+                const c = this.ctx;
+                if (!c || c.state !== 'running') return;
+                if (this.nextTime < c.currentTime - 0.5) this.nextTime = c.currentTime + 0.05;
+                const stepDur = 60 / this.tempo / 2;
+                while (this.nextTime < c.currentTime + 0.15) {
+                    this.playStep(this.step, this.nextTime, stepDur);
+                    this.nextTime += stepDur;
+                    this.step = (this.step + 1) % TOTAL_STEPS;
+                }
+            },
+
+            playStep(step, t, stepDur) {
+                const bar = Math.floor(step / 8);
+                const pos = step % 8;
+                const ch = SONG.chords[bar];
+                const chord = CHORDS[Array.isArray(ch) ? ch[pos < 4 ? 0 : 1] : ch];
+                const bus = this.musicBus;
+
+                // Бас: тоніка на 1-шу долю, квінта на 3-тю
+                if (pos === 0) this.voice(mtof(chord.root), t, { type: 'triangle', gain: 0.2, decay: 0.45, dest: bus });
+                if (pos === 4) this.voice(mtof(chord.root + 7), t, { type: 'triangle', gain: 0.16, decay: 0.4, dest: bus });
+
+                // Легкий «пум-па» акордом на 2-гу і 4-ту долі
+                if (pos === 2 || pos === 6) {
+                    chord.tones.forEach(n => this.voice(mtof(n), t, { type: 'triangle', gain: 0.04, decay: 0.22, dest: bus }));
+                }
+
+                // Мелодія — звук музичної скриньки
+                const m = MELODY_STEPS[step];
+                if (m) {
+                    this.voice(mtof(m.note), t, {
+                        gain: 0.15, harmonic: 0.22, attack: 0.004,
+                        decay: 0.3 + m.len * stepDur * 0.9, dest: bus
+                    });
+                }
+            },
+
+            setMood(mood) {
+                this.tempo = mood === 'game' ? 112 : 96;
+            },
+
+            toggleMusic() {
+                this.musicOn = !this.musicOn;
+                localStorage.setItem('rz_music', this.musicOn ? 'on' : 'off');
+                this.unlock();
+                if (this.musicOn) this.startMusic(); else this.stopMusic();
+                this.updateButtons();
+            },
+
+            updateButtons() {
+                const label = TRANSLATIONS[app.lang].music;
+                document.querySelectorAll('.music-btn').forEach(b => {
+                    b.textContent = this.musicOn ? '🎵' : '🔇';
+                    b.classList.toggle('off', !this.musicOn);
+                    b.setAttribute('aria-pressed', this.musicOn ? 'true' : 'false');
+                    b.setAttribute('aria-label', label);
+                    b.title = label;
+                });
+            },
+
+            // Приглушити музику, поки звучить озвучка слова
+            duck(seconds = 1.3) {
+                if (this.mode === 'file' && this.audioEl) {
+                    this.audioEl.volume = this.fileVolume * 0.3;
+                    clearTimeout(this._duckTimer);
+                    this._duckTimer = setTimeout(() => { if (this.audioEl) this.audioEl.volume = this.fileVolume; }, seconds * 1000);
+                }
+                if (this.ctx) {
+                    const t = this.ctx.currentTime;
+                    const g = this.duckBus.gain;
+                    g.cancelScheduledValues(t);
+                    g.setTargetAtTime(0.3, t, 0.05);
+                    g.setTargetAtTime(1, t + seconds, 0.35);
+                }
+            },
+
+            // --- звукові ефекти ---
+            sfx(name) {
+                if (!this.ctx || this.ctx.state !== 'running') return;
+                const t = this.ctx.currentTime + 0.01;
+                const bell = (n, dt, gain = 0.2, decay = 0.4) =>
+                    this.voice(mtof(n), t + dt, { gain, harmonic: 0.3, decay });
+                const soft = (n, dt, gain = 0.18, decay = 0.2) =>
+                    this.voice(mtof(n), t + dt, { type: 'triangle', gain, decay });
+
+                switch (name) {
+                    case 'pick':    bell(91, 0, 0.1, 0.12); break;
+                    case 'tap':     bell(88, 0, 0.1, 0.18); break;
+                    case 'correct': [84, 88, 91, 96].forEach((n, i) => bell(n, i * 0.07, 0.18, 0.45)); break;
+                    case 'wrong':   soft(64, 0); soft(60, 0.15, 0.18, 0.28); break;
+                    case 'timeup':  [67, 64, 60].forEach((n, i) => soft(n, i * 0.18, 0.18, 0.32)); break;
+                    case 'win':
+                        [72, 76, 79, 84, 88].forEach((n, i) => bell(n, i * 0.1, 0.16, 0.5));
+                        [72, 76, 79, 84].forEach(n => bell(n, 0.6, 0.08, 1.4));
+                        break;
+                }
+            },
+
+            onVisibility() {
+                if (!this.started) return;
+                if (document.hidden) {
+                    if (this.ctx) this.ctx.suspend().catch(() => {});
+                    if (this.audioEl) this.audioEl.pause();
+                } else {
+                    if (this.ctx) this.ctx.resume().catch(() => {});
+                    if (this.musicOn && this.mode === 'file' && this.audioEl) this.audioEl.play().catch(() => {});
+                }
+            }
+        };
+
+        document.addEventListener('visibilitychange', () => Sound.onVisibility());
+        // iOS інколи «присипляє» звук — будимо його при будь-якому дотику
+        document.addEventListener('pointerdown', () => {
+            if (Sound.ctx && Sound.ctx.state !== 'running' && !document.hidden) Sound.ctx.resume().catch(() => {});
+        }, { passive: true });
+
         // ===== ОЗВУЧУВАННЯ =====
         function speakText(text, lang) {
             if (!('speechSynthesis' in window)) return;
@@ -1156,10 +1752,14 @@
             utterance.rate = 0.85;
             utterance.pitch = 1.3;
             window.speechSynthesis.cancel();
+            Sound.duck(0.4 + text.length * 0.09);
             window.speechSynthesis.speak(utterance);
         }
 
-        // ===== ГАВНИЙ КЛАС ГРАВАЙ =====
+        const tr = key => TRANSLATIONS[app.lang][key];
+        const itemName = item => app.lang === 'uk' ? item.nameUA : item.nameEN;
+
+        // ===== ГОЛОВНИЙ КЛАС ГРИ =====
         class Game {
             constructor() {
                 this.currentMission = null;
@@ -1167,27 +1767,45 @@
                 this.collectedItems = [];
                 this.remainingTime = 120;
                 this.timerInterval = null;
-                this.draggedItem = null;
-                this.dragElement = null;
+                this.drag = null;
+                this.finished = false;
+                this.restartTimeout = null;
+            }
+
+            get backpack() {
+                return document.getElementById('backpack');
             }
 
             startMission(missionId) {
+                this.stopTimer();
+                this.cancelDrag();
+                clearTimeout(this.restartTimeout);
+
                 this.currentMission = MISSIONS.find(m => m.id === missionId);
                 this.collectedItems = [];
                 this.remainingTime = 120;
+                this.finished = false;
 
-                const title = app.lang === 'uk' ? this.currentMission.nameUA : this.currentMission.nameEN;
-                document.getElementById("missionTitle").textContent = title;
-                
+                this.updateTitle();
                 this.renderItems();
                 this.renderProgressSlots();
-                this.showScreen("game");
+                this.updateProgress();
+                document.getElementById('timer').classList.remove('warning');
+                this.updateTimer();
+                app.showScreen('game');
                 this.startTimer();
             }
 
+            updateTitle() {
+                if (!this.currentMission) return;
+                const m = this.currentMission;
+                document.getElementById('missionTitle').textContent =
+                    `${m.emoji} ${app.lang === 'uk' ? m.nameUA : m.nameEN}`;
+            }
+
             renderItems() {
-                const zone = document.getElementById("itemsZone");
-                zone.innerHTML = "";
+                const zone = document.getElementById('itemsZone');
+                zone.innerHTML = '';
 
                 const items = [
                     ...this.currentMission.targetItems,
@@ -1196,278 +1814,370 @@
 
                 items.forEach(itemId => {
                     const item = ITEMS[itemId];
-                    const div = document.createElement("div");
-                    div.className = "item";
-                    div.draggable = true;
+                    const div = document.createElement('div');
+                    div.className = 'item';
                     div.dataset.itemId = itemId;
-                    const itemName = app.lang === 'uk' ? item.nameUA : item.nameEN;
                     div.innerHTML = `
                         <div class="item-emoji">${item.emoji}</div>
-                        <div class="item-name">${itemName}</div>
+                        <div class="item-name">${itemName(item)}</div>
                     `;
-
-                    // Desktop Drag & Drop
-                    div.addEventListener("dragstart", (e) => this.dragStart(e, itemId, div));
-                    div.addEventListener("dragend", () => this.dragEnd());
-                    
-                    // Mobile Touch
-                    div.addEventListener("touchstart", (e) => this.touchStart(e, itemId, div), false);
-                    div.addEventListener("touchmove", (e) => this.touchMove(e), false);
-                    div.addEventListener("touchend", (e) => this.touchEnd(e), false);
-
+                    // Pointer Events: одна логіка для миші, пальця і стилуса
+                    div.addEventListener('pointerdown', e => this.onPointerDown(e, div));
+                    div.addEventListener('contextmenu', e => e.preventDefault());
                     zone.appendChild(div);
                 });
-
-                // Налаштувати drop зону
-                const backpack = document.getElementById("backpack");
-                backpack.addEventListener("dragover", (e) => this.dragOver(e));
-                backpack.addEventListener("drop", (e) => this.drop(e));
-                backpack.addEventListener("dragleave", () => this.dragLeave());
             }
 
-            // DESKTOP DRAG & DROP
-            dragStart(e, itemId, element) {
-                this.draggedItem = itemId;
-                this.dragElement = element;
-                element.classList.add("dragging");
-                e.dataTransfer.effectAllowed = "move";
+            // Оновити підписи без перемішування (при зміні мови під час гри)
+            refreshItemNames() {
+                document.querySelectorAll('#itemsZone .item').forEach(el => {
+                    const item = ITEMS[el.dataset.itemId];
+                    el.querySelector('.item-name').textContent = itemName(item);
+                });
             }
 
-            dragEnd() {
-                if (this.dragElement) {
-                    this.dragElement.classList.remove("dragging");
+            // ----- ПЕРЕТЯГУВАННЯ -----
+            onPointerDown(e, el) {
+                if (this.finished || this.drag) return;
+                if (e.pointerType === 'mouse' && e.button !== 0) return;
+                if (el.classList.contains('collected')) return;
+                e.preventDefault();
+
+                try { el.setPointerCapture(e.pointerId); } catch (_) {}
+                Sound.unlock();
+
+                const rect = el.getBoundingClientRect();
+                const d = {
+                    el,
+                    id: el.dataset.itemId,
+                    pointerId: e.pointerId,
+                    startX: e.clientX,
+                    startY: e.clientY,
+                    offX: e.clientX - rect.left,
+                    offY: e.clientY - rect.top,
+                    rect,
+                    ghost: null,
+                    moved: false
+                };
+                const move = ev => this.onPointerMove(ev);
+                const up = ev => this.onPointerUp(ev, false);
+                const cancel = ev => this.onPointerUp(ev, true);
+                el.addEventListener('pointermove', move);
+                el.addEventListener('pointerup', up);
+                el.addEventListener('pointercancel', cancel);
+                d.cleanup = () => {
+                    el.removeEventListener('pointermove', move);
+                    el.removeEventListener('pointerup', up);
+                    el.removeEventListener('pointercancel', cancel);
+                };
+                this.drag = d;
+            }
+
+            onPointerMove(e) {
+                const d = this.drag;
+                if (!d || e.pointerId !== d.pointerId) return;
+
+                if (!d.moved) {
+                    if (Math.hypot(e.clientX - d.startX, e.clientY - d.startY) < 8) return;
+                    d.moved = true;
+                    const g = d.el.cloneNode(true);
+                    g.classList.add('ghost');
+                    g.classList.remove('shake', 'tapped');
+                    g.style.width = d.rect.width + 'px';
+                    g.style.height = d.rect.height + 'px';
+                    document.body.appendChild(g);
+                    d.ghost = g;
+                    d.el.classList.add('placeholder');
+                    Sound.sfx('pick');
                 }
-                this.draggedItem = null;
+
+                d.ghost.style.transform =
+                    `translate(${e.clientX - d.offX}px, ${e.clientY - d.offY}px) rotate(-4deg) scale(1.08)`;
+                this.backpack.classList.toggle('drag-over', this.isOverBackpack(e.clientX, e.clientY));
             }
 
-            dragOver(e) {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = "move";
-                document.getElementById("backpack").classList.add("drag-over");
+            // Зона рюкзака трохи більша за сам рюкзак — маленьким пальчикам легше влучити
+            isOverBackpack(x, y) {
+                const r = this.backpack.getBoundingClientRect();
+                const pad = 30;
+                return x > r.left - pad && x < r.right + pad && y > r.top - pad && y < r.bottom + pad;
             }
 
-            dragLeave() {
-                document.getElementById("backpack").classList.remove("drag-over");
-            }
+            onPointerUp(e, cancelled) {
+                const d = this.drag;
+                if (!d || e.pointerId !== d.pointerId) return;
+                d.cleanup();
+                this.drag = null;
+                this.backpack.classList.remove('drag-over');
 
-            drop(e) {
-                e.preventDefault();
-                document.getElementById("backpack").classList.remove("drag-over");
-
-                if (this.draggedItem) {
-                    this.processItemDrop(this.draggedItem);
-                    this.draggedItem = null;
+                // Просто торкнулись — кажемо назву предмета (для тих, хто ще не читає)
+                if (!d.moved) {
+                    if (!cancelled) this.tapItem(d.id, d.el);
+                    return;
                 }
-            }
 
-            // MOBILE TOUCH
-            touchStart(e, itemId, element) {
-                this.draggedItem = itemId;
-                this.dragElement = element;
-                element.classList.add("dragging");
-                e.preventDefault();
-            }
-
-            touchMove(e) {
-                if (!this.draggedItem) return;
-
-                const touch = e.touches[0];
-                const backpack = document.getElementById("backpack");
-                const rect = backpack.getBoundingClientRect();
-                
-                if (touch.clientX > rect.left && 
-                    touch.clientX < rect.right && 
-                    touch.clientY > rect.top && 
-                    touch.clientY < rect.bottom) {
-                    backpack.classList.add("drag-over");
+                const over = !cancelled && !this.finished && this.isOverBackpack(e.clientX, e.clientY);
+                if (over && this.processItemDrop(d.id)) {
+                    this.flyIntoBackpack(d);
                 } else {
-                    backpack.classList.remove("drag-over");
+                    this.flyBack(d, over);
                 }
             }
 
-            touchEnd(e) {
-                const touch = e.changedTouches[0];
-                const backpack = document.getElementById("backpack");
-                const rect = backpack.getBoundingClientRect();
-
-                if (this.dragElement) {
-                    this.dragElement.classList.remove("dragging");
-                }
-
-                backpack.classList.remove("drag-over");
-
-                if (touch.clientX > rect.left && 
-                    touch.clientX < rect.right && 
-                    touch.clientY > rect.top && 
-                    touch.clientY < rect.bottom) {
-                    this.processItemDrop(this.draggedItem);
-                }
-
-                this.draggedItem = null;
+            flyIntoBackpack(d) {
+                const g = d.ghost;
+                const br = this.backpack.getBoundingClientRect();
+                const x = br.left + br.width / 2 - d.rect.width / 2;
+                const y = br.top + br.height / 2 - d.rect.height / 2;
+                g.style.transition = 'transform 0.35s ease-in, opacity 0.35s ease-in';
+                g.style.transform = `translate(${x}px, ${y}px) scale(0.2)`;
+                g.style.opacity = '0';
+                setTimeout(() => {
+                    g.remove();
+                    this.backpack.classList.remove('gulp');
+                    void this.backpack.offsetWidth;
+                    this.backpack.classList.add('gulp');
+                }, 340);
             }
 
+            flyBack(d, shake) {
+                const g = d.ghost;
+                const r = d.el.getBoundingClientRect();
+                g.style.transition = 'transform 0.3s ease-out';
+                g.style.transform = `translate(${r.left}px, ${r.top}px)`;
+                setTimeout(() => {
+                    g.remove();
+                    d.el.classList.remove('placeholder');
+                    if (shake) this.restartAnim(d.el, 'shake');
+                }, 300);
+            }
+
+            cancelDrag() {
+                if (!this.drag) return;
+                this.drag.cleanup();
+                if (this.drag.ghost) this.drag.ghost.remove();
+                this.drag.el.classList.remove('placeholder');
+                this.drag = null;
+                this.backpack.classList.remove('drag-over');
+            }
+
+            restartAnim(el, cls) {
+                el.classList.remove(cls);
+                void el.offsetWidth;
+                el.classList.add(cls);
+                setTimeout(() => el.classList.remove(cls), 450);
+            }
+
+            tapItem(itemId, el) {
+                Sound.sfx('tap');
+                speakText(itemName(ITEMS[itemId]), app.lang);
+                this.restartAnim(el, 'tapped');
+            }
+
+            // Повертає true, якщо предмет правильний
             processItemDrop(itemId) {
+                if (this.collectedItems.includes(itemId)) return false;
                 const isCorrect = this.currentMission.targetItems.includes(itemId);
 
-                if (isCorrect && !this.collectedItems.includes(itemId)) {
+                if (isCorrect) {
                     this.collectedItems.push(itemId);
-                    const itemEl = document.querySelector(`[data-item-id="${itemId}"]`);
-                    itemEl.classList.add("collected");
-                    
-                    const item = ITEMS[itemId];
-                    const itemName = app.lang === 'uk' ? item.nameUA : item.nameEN;
-                    speakText(itemName, app.lang);
-                    
-                    this.updateProgress();
-                    this.showFeedback("✅ " + (app.lang === 'uk' ? "Правильно!" : "Correct!"), "success");
+                    const itemEl = document.querySelector(`#itemsZone [data-item-id="${itemId}"]`);
+                    itemEl.classList.remove('placeholder');
+                    itemEl.classList.add('collected');
 
-                    if (this.collectedItems.length === 5) {
-                        this.completeGame();
-                    }
-                } else if (!this.collectedItems.includes(itemId)) {
-                    this.showFeedback((app.lang === 'uk' ? "❌ Не підходить!" : "❌ Doesn't fit!"), "error");
-                    const itemEl = document.querySelector(`[data-item-id="${itemId}"]`);
-                    itemEl.style.animation = "shake 0.3s";
+                    Sound.sfx('correct');
+                    speakText(itemName(ITEMS[itemId]), app.lang);
+                    this.updateProgress();
+                    this.showFeedback('✅ ' + tr('correct'), 'success');
+
+                    if (this.collectedItems.length === 5) this.completeGame();
+                    return true;
                 }
+
+                Sound.sfx('wrong');
+                this.showFeedback('❌ ' + tr('wrong'), 'error');
+                return false;
             }
 
             updateProgress() {
-                document.getElementById("collectedCount").textContent = this.collectedItems.length;
-                const slots = document.querySelectorAll(".slot");
+                document.getElementById('collectedCount').textContent = this.collectedItems.length;
+                const slots = document.querySelectorAll('.slot');
                 slots.forEach((slot, idx) => {
-                    if (idx < this.collectedItems.length) {
-                        slot.classList.add("filled");
-                    }
+                    const id = this.collectedItems[idx];
+                    slot.classList.toggle('filled', !!id);
+                    slot.textContent = id ? ITEMS[id].emoji : '';
                 });
             }
 
             renderProgressSlots() {
-                const progressBar = document.getElementById("progressBar");
-                progressBar.innerHTML = "";
+                const progressBar = document.getElementById('progressBar');
+                progressBar.innerHTML = '';
                 for (let i = 0; i < 5; i++) {
-                    const slot = document.createElement("div");
-                    slot.className = "slot";
+                    const slot = document.createElement('div');
+                    slot.className = 'slot';
                     progressBar.appendChild(slot);
                 }
             }
 
             startTimer() {
+                this.stopTimer();
                 this.timerInterval = setInterval(() => {
                     this.remainingTime--;
                     this.updateTimer();
-                    if (this.remainingTime === 0) {
-                        clearInterval(this.timerInterval);
+                    if (this.remainingTime <= 0) {
+                        this.stopTimer();
                         this.gameOver();
                     }
                 }, 1000);
             }
 
+            stopTimer() {
+                clearInterval(this.timerInterval);
+                this.timerInterval = null;
+            }
+
             updateTimer() {
                 const mins = Math.floor(this.remainingTime / 60);
                 const secs = this.remainingTime % 60;
-                const timerEl = document.getElementById("timer");
-                timerEl.textContent = `${mins}:${secs.toString().padStart(2, "0")}`;
-
-                if (this.remainingTime < 30) {
-                    timerEl.classList.add("warning");
-                }
+                const timerEl = document.getElementById('timer');
+                timerEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                timerEl.classList.toggle('warning', this.remainingTime < 30);
             }
 
             completeGame() {
-                clearInterval(this.timerInterval);
+                this.finished = true;
+                this.stopTimer();
                 const timeSpent = 120 - this.remainingTime;
                 const stars = timeSpent < 60 ? 3 : timeSpent < 90 ? 2 : 1;
 
-                const starsDisplay = document.getElementById("starsDisplay");
-                starsDisplay.innerHTML = "";
+                const starsDisplay = document.getElementById('starsDisplay');
+                starsDisplay.innerHTML = '';
                 for (let i = 0; i < stars; i++) {
-                    const star = document.createElement("span");
-                    star.className = "star";
-                    star.textContent = "⭐";
+                    const star = document.createElement('span');
+                    star.className = 'star';
+                    star.textContent = '⭐';
                     star.style.animationDelay = `${i * 0.2}s`;
                     starsDisplay.appendChild(star);
                 }
 
-                setTimeout(() => this.showScreen("completion"), 800);
+                setTimeout(() => {
+                    if (app.currentScreen !== 'game') return;
+                    Sound.sfx('win');
+                    app.showScreen('completion');
+                }, 900);
             }
 
             gameOver() {
-                this.showFeedback(app.lang === 'uk' ? "⏰ Час вийшов!" : "⏰ Time's up!", "error");
-                setTimeout(() => this.startMission(this.currentMission.id), 2500);
+                this.finished = true;
+                this.cancelDrag();
+                Sound.sfx('timeup');
+                this.showFeedback('⏰ ' + tr('timeup'), 'error');
+                const missionId = this.currentMission.id;
+                this.restartTimeout = setTimeout(() => {
+                    if (app.currentScreen === 'game' && this.currentMission && this.currentMission.id === missionId) {
+                        this.startMission(missionId);
+                    }
+                }, 2500);
             }
 
             showFeedback(message, type) {
-                const feedback = document.createElement("div");
+                document.querySelectorAll('.feedback').forEach(f => f.remove());
+                const feedback = document.createElement('div');
                 feedback.className = `feedback ${type}`;
+                feedback.setAttribute('role', 'status');
                 feedback.textContent = message;
+                if (app.currentScreen === 'game') {
+                    const r = this.backpack.getBoundingClientRect();
+                    feedback.classList.add('anchored');
+                    feedback.style.left = Math.min(Math.max(r.left + r.width / 2, 110), innerWidth - 110) + 'px';
+                    feedback.style.top = Math.max(r.top - 70, 8) + 'px';
+                }
                 document.body.appendChild(feedback);
-                setTimeout(() => feedback.remove(), 2000);
+                setTimeout(() => feedback.remove(), 1800);
             }
 
-            showScreen(screenId) {
-                document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-                document.getElementById(screenId).classList.add("active");
+            leave() {
+                this.stopTimer();
+                this.cancelDrag();
+                clearTimeout(this.restartTimeout);
             }
         }
 
         // ===== ДОДАТОК =====
         const app = {
             game: new Game(),
-            lang: 'uk',
+            lang: localStorage.getItem('rz_lang') === 'en' ? 'en' : 'uk',
+            currentScreen: 'rooms',
 
             setLanguage(lang) {
                 this.lang = lang;
-                document.querySelectorAll('.lang-btn').forEach((btn, idx) => {
-                    btn.classList.toggle('active', (idx === 0 && lang === 'uk') || (idx === 1 && lang === 'en'));
+                localStorage.setItem('rz_lang', lang);
+                document.documentElement.lang = lang;
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.lang === lang);
                 });
                 this.updateTexts();
-                if (document.getElementById("missionGrid").children.length > 0) {
-                    this.renderMissions(this.game.currentRoom);
-                }
-                this.game.renderItems();
+                this.renderRooms();
+                if (this.game.currentRoom) this.renderMissions(this.game.currentRoom);
+                this.game.updateTitle();
+                this.game.refreshItemNames();
+                Sound.updateButtons();
+                document.title = '🎒 ' + TRANSLATIONS[lang]['menu-title'];
             },
 
             updateTexts() {
                 const trans = TRANSLATIONS[this.lang];
                 document.querySelectorAll('[class*="text-"]').forEach(el => {
-                    const key = el.className.replace('text-', '');
-                    if (trans[key]) {
-                        el.textContent = trans[key];
-                    }
+                    const cls = [...el.classList].find(c => c.startsWith('text-'));
+                    const key = cls && cls.slice(5);
+                    if (key && trans[key]) el.textContent = trans[key];
                 });
             },
 
             init() {
-                // Показати splash screen 3 секунди
-                setTimeout(() => {
-                    this.hideSplash();
-                }, 3000);
-
-                this.updateTexts();
-                this.renderRooms();
+                this.setLanguage(this.lang);
+                this.setupSplash();
             },
 
-            hideSplash() {
-                const splash = document.getElementById("splash");
-                splash.classList.add("hide");
-                setTimeout(() => {
-                    splash.style.display = "none";
-                }, 500);
+            setupSplash() {
+                const splash = document.getElementById('splash');
+                const img = document.getElementById('splashImg');
+                const markMissing = () => splash.classList.add('no-img');
+                if (img.complete && img.naturalWidth === 0) markMissing();
+                img.addEventListener('error', markMissing);
+
+                document.getElementById('playBtn').addEventListener('click', () => {
+                    // Натискання «Грати» — це дозвіл браузеру на звук
+                    Sound.unlock();
+                    Sound.startMusic();
+                    Sound.sfx('tap');
+
+                    // На телефоні — повний екран (там, де браузер дозволяє)
+                    const root = document.documentElement;
+                    if (window.matchMedia('(pointer: coarse)').matches && root.requestFullscreen && window.self === window.top) {
+                        root.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+                    }
+
+                    splash.classList.add('hidden');
+                    this.showScreen('rooms');
+                    setTimeout(() => splash.remove(), 700);
+                });
             },
 
             renderRooms() {
-                const grid = document.getElementById("roomsGrid");
-                grid.innerHTML = "";
+                const grid = document.getElementById('roomsGrid');
+                grid.innerHTML = '';
 
                 ROOMS.forEach(room => {
-                    const card = document.createElement("div");
-                    card.className = "room-card";
+                    const card = document.createElement('button');
+                    card.type = 'button';
+                    card.className = 'room-card';
                     const name = this.lang === 'uk' ? room.nameUA : room.nameEN;
                     const desc = this.lang === 'uk' ? room.descUA : room.descEN;
                     card.innerHTML = `
                         <span class="room-emoji">${room.emoji}</span>
-                        <div class="room-name">${name}</div>
-                        <div class="room-desc">${desc}</div>
+                        <span class="room-name">${name}</span>
+                        <span class="room-desc">${desc}</span>
                     `;
                     card.onclick = () => this.selectRoom(room);
                     grid.appendChild(card);
@@ -1475,45 +2185,55 @@
             },
 
             selectRoom(room) {
+                Sound.sfx('tap');
                 this.game.currentRoom = room;
                 this.renderMissions(room);
-                this.showScreen("missions");
+                this.showScreen('missions');
             },
 
             renderMissions(room) {
-                const grid = document.getElementById("missionGrid");
-                grid.innerHTML = "";
+                const grid = document.getElementById('missionGrid');
+                grid.innerHTML = '';
 
                 const roomName = this.lang === 'uk' ? room.nameUA : room.nameEN;
-                document.getElementById("roomTitle").textContent = roomName;
+                document.getElementById('roomTitle').textContent = roomName;
 
                 room.missionIds.forEach(missionId => {
                     const mission = MISSIONS.find(m => m.id === missionId);
-                    const btn = document.createElement("button");
-                    btn.className = "mission-btn";
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'mission-btn';
                     const name = this.lang === 'uk' ? mission.nameUA : mission.nameEN;
                     btn.innerHTML = `
                         <span class="mission-emoji">${mission.emoji}</span>
                         <span>${name}</span>
                     `;
-                    btn.onclick = () => this.game.startMission(mission.id);
+                    btn.onclick = () => {
+                        Sound.sfx('tap');
+                        this.game.startMission(mission.id);
+                    };
                     grid.appendChild(btn);
                 });
             },
 
             showScreen(screenId) {
-                document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-                document.getElementById(screenId).classList.add("active");
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.querySelectorAll('.feedback').forEach(f => f.remove());
+                document.getElementById(screenId).classList.add('active');
+                this.currentScreen = screenId;
+                document.body.dataset.screen = screenId;
+                Sound.setMood(screenId === 'game' ? 'game' : 'menu');
+                window.scrollTo(0, 0);
             },
 
             backToRooms() {
-                clearInterval(this.game.timerInterval);
-                this.showScreen("rooms");
+                this.game.leave();
+                this.showScreen('rooms');
             },
 
             backToMissions() {
-                clearInterval(this.game.timerInterval);
-                this.showScreen("missions");
+                this.game.leave();
+                this.showScreen('missions');
             },
 
             playAgain() {
