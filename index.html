@@ -286,6 +286,8 @@
             max-height: 420px;
             border: 3px dashed #4A90E2;
             justify-content: center;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
         }
 
         .item {
@@ -306,6 +308,8 @@
             touch-action: none;
             user-select: none;
             position: relative;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
         }
 
         .item:active {
@@ -324,6 +328,7 @@
             border-color: #4A90E2;
             cursor: grabbing;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            z-index: 100;
         }
 
         .item.collected {
@@ -375,6 +380,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 10;
         }
 
         .backpack::before {
@@ -394,6 +400,7 @@
             transform: scale(1.12);
             box-shadow: 0 0 30px #FFD700;
             animation: pulse 0.3s;
+            z-index: 50;
         }
 
         .drop-text {
@@ -1069,7 +1076,6 @@
                 this.timerInterval = null;
                 this.draggedItem = null;
                 this.dragElement = null;
-                this.isDragging = false;
             }
 
             startMission(missionId) {
@@ -1099,6 +1105,7 @@
                     const item = ITEMS[itemId];
                     const div = document.createElement("div");
                     div.className = "item";
+                    div.draggable = true;
                     div.dataset.itemId = itemId;
                     const itemName = app.lang === 'uk' ? item.nameUA : item.nameEN;
                     div.innerHTML = `
@@ -1106,64 +1113,104 @@
                         <div class="item-name">${itemName}</div>
                     `;
 
-                    div.addEventListener("pointerdown", (e) => this.pointerDown(e, itemId, div));
-                    div.addEventListener("pointermove", (e) => this.pointerMove(e));
-                    div.addEventListener("pointerup", (e) => this.pointerUp(e));
-                    div.addEventListener("pointercancel", () => this.pointerCancel());
+                    // Desktop Drag & Drop
+                    div.addEventListener("dragstart", (e) => this.dragStart(e, itemId, div));
+                    div.addEventListener("dragend", () => this.dragEnd());
+                    
+                    // Mobile Touch
+                    div.addEventListener("touchstart", (e) => this.touchStart(e, itemId, div), false);
+                    div.addEventListener("touchmove", (e) => this.touchMove(e), false);
+                    div.addEventListener("touchend", (e) => this.touchEnd(e), false);
 
                     zone.appendChild(div);
                 });
+
+                // Налаштувати drop зону
+                const backpack = document.getElementById("backpack");
+                backpack.addEventListener("dragover", (e) => this.dragOver(e));
+                backpack.addEventListener("drop", (e) => this.drop(e));
+                backpack.addEventListener("dragleave", () => this.dragLeave());
             }
 
-            pointerDown(e, itemId, element) {
-                this.isDragging = true;
+            // DESKTOP DRAG & DROP
+            dragStart(e, itemId, element) {
+                this.draggedItem = itemId;
+                this.dragElement = element;
+                element.classList.add("dragging");
+                e.dataTransfer.effectAllowed = "move";
+            }
+
+            dragEnd() {
+                if (this.dragElement) {
+                    this.dragElement.classList.remove("dragging");
+                }
+                this.draggedItem = null;
+            }
+
+            dragOver(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+                document.getElementById("backpack").classList.add("drag-over");
+            }
+
+            dragLeave() {
+                document.getElementById("backpack").classList.remove("drag-over");
+            }
+
+            drop(e) {
+                e.preventDefault();
+                document.getElementById("backpack").classList.remove("drag-over");
+
+                if (this.draggedItem) {
+                    this.processItemDrop(this.draggedItem);
+                    this.draggedItem = null;
+                }
+            }
+
+            // MOBILE TOUCH
+            touchStart(e, itemId, element) {
                 this.draggedItem = itemId;
                 this.dragElement = element;
                 element.classList.add("dragging");
                 e.preventDefault();
             }
 
-            pointerMove(e) {
-                if (!this.isDragging || !this.draggedItem) return;
+            touchMove(e) {
+                if (!this.draggedItem) return;
 
+                const touch = e.touches[0];
                 const backpack = document.getElementById("backpack");
                 const rect = backpack.getBoundingClientRect();
                 
-                if (e.clientX > rect.left && e.clientX < rect.right && 
-                    e.clientY > rect.top && e.clientY < rect.bottom) {
+                if (touch.clientX > rect.left && 
+                    touch.clientX < rect.right && 
+                    touch.clientY > rect.top && 
+                    touch.clientY < rect.bottom) {
                     backpack.classList.add("drag-over");
                 } else {
                     backpack.classList.remove("drag-over");
                 }
             }
 
-            pointerUp(e) {
-                if (!this.isDragging) return;
-
+            touchEnd(e) {
+                const touch = e.changedTouches[0];
                 const backpack = document.getElementById("backpack");
                 const rect = backpack.getBoundingClientRect();
 
+                if (this.dragElement) {
+                    this.dragElement.classList.remove("dragging");
+                }
+
                 backpack.classList.remove("drag-over");
 
-                if (e.clientX > rect.left && e.clientX < rect.right && 
-                    e.clientY > rect.top && e.clientY < rect.bottom) {
+                if (touch.clientX > rect.left && 
+                    touch.clientX < rect.right && 
+                    touch.clientY > rect.top && 
+                    touch.clientY < rect.bottom) {
                     this.processItemDrop(this.draggedItem);
                 }
 
-                if (this.dragElement) {
-                    this.dragElement.classList.remove("dragging");
-                }
-
-                this.isDragging = false;
                 this.draggedItem = null;
-            }
-
-            pointerCancel() {
-                this.isDragging = false;
-                if (this.dragElement) {
-                    this.dragElement.classList.remove("dragging");
-                }
-                document.getElementById("backpack").classList.remove("drag-over");
             }
 
             processItemDrop(itemId) {
